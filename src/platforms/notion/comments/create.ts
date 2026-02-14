@@ -1,5 +1,5 @@
 import { defineCommand } from "citty"
-import { commonArgs } from "../../../lib/args.ts"
+import { commonArgs, stdinArgs } from "../../../lib/args.ts"
 import { getToken } from "../../../lib/credentials.ts"
 import { handleError } from "../../../lib/errors.ts"
 import { getOutputFormat, printOutput } from "../../../lib/output.ts"
@@ -12,6 +12,7 @@ export const createCommand = defineCommand({
 	},
 	args: {
 		...commonArgs,
+		...stdinArgs,
 		"page-id": {
 			type: "string",
 			description: "Page ID (starts a new discussion)"
@@ -27,18 +28,23 @@ export const createCommand = defineCommand({
 	},
 	async run({ args }) {
 		try {
-			const { token } = await getToken(args.workspace)
-			const client = createNotionClient(token)
+			if (args.stdio && args.text) {
+				console.error("\x1b[31m\u2717\x1b[0m Cannot use both --stdio and --text")
+				process.exit(1)
+			}
 
 			let text = args.text
-			if (!text) {
+			if (!text && args.stdio) {
 				text = (await Bun.stdin.text()).trimEnd()
 			}
 
 			if (!text) {
-				console.error("\x1b[31m\u2717\x1b[0m No comment text provided")
+				console.error("\x1b[31m\u2717\x1b[0m No comment text provided. Use --text or --stdio")
 				process.exit(1)
 			}
+
+			const { token } = await getToken(args.workspace)
+			const client = createNotionClient(token)
 
 			const richText = [{ type: "text" as const, text: { content: text } }]
 

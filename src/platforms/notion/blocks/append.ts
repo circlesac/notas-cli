@@ -1,5 +1,5 @@
 import { defineCommand } from "citty"
-import { commonArgs } from "../../../lib/args.ts"
+import { commonArgs, stdinArgs } from "../../../lib/args.ts"
 import { getToken } from "../../../lib/credentials.ts"
 import { handleError } from "../../../lib/errors.ts"
 import { getOutputFormat, printOutput } from "../../../lib/output.ts"
@@ -12,6 +12,7 @@ export const appendCommand = defineCommand({
 	},
 	args: {
 		...commonArgs,
+		...stdinArgs,
 		id: {
 			type: "positional",
 			description: "Parent block or page ID",
@@ -45,6 +46,11 @@ export const appendCommand = defineCommand({
 	},
 	async run({ args }) {
 		try {
+			if (args.stdio && args.text) {
+				console.error("\x1b[31m\u2717\x1b[0m Cannot use both --stdio and --text")
+				process.exit(1)
+			}
+
 			const { token } = await getToken(args.workspace)
 			const client = createNotionClient(token)
 
@@ -65,50 +71,49 @@ export const appendCommand = defineCommand({
 							bookmark: { url: args.url ?? "" }
 						}
 					]
-				} else if (blockType === "code") {
-					let text = args.text
-					if (!text) {
-						text = (await Bun.stdin.text()).trimEnd()
-					}
-					children = [
-						{
-							object: "block",
-							type: "code",
-							code: {
-								rich_text: [{ type: "text", text: { content: text } }],
-								language: args.language ?? "plain text"
-							}
-						}
-					]
-				} else if (blockType === "to_do") {
-					let text = args.text
-					if (!text) {
-						text = (await Bun.stdin.text()).trimEnd()
-					}
-					children = [
-						{
-							object: "block",
-							type: "to_do",
-							to_do: {
-								rich_text: [{ type: "text", text: { content: text ?? "" } }],
-								checked: args.checked ?? false
-							}
-						}
-					]
 				} else {
 					let text = args.text
-					if (!text) {
+					if (!text && args.stdio) {
 						text = (await Bun.stdin.text()).trimEnd()
 					}
-					children = [
-						{
-							object: "block",
-							type: blockType,
-							[blockType]: {
-								rich_text: [{ type: "text", text: { content: text ?? "" } }]
+					if (!text) {
+						console.error("\x1b[31m\u2717\x1b[0m No text provided. Use --text or --stdio")
+						process.exit(1)
+					}
+
+					if (blockType === "code") {
+						children = [
+							{
+								object: "block",
+								type: "code",
+								code: {
+									rich_text: [{ type: "text", text: { content: text } }],
+									language: args.language ?? "plain text"
+								}
 							}
-						}
-					]
+						]
+					} else if (blockType === "to_do") {
+						children = [
+							{
+								object: "block",
+								type: "to_do",
+								to_do: {
+									rich_text: [{ type: "text", text: { content: text } }],
+									checked: args.checked ?? false
+								}
+							}
+						]
+					} else {
+						children = [
+							{
+								object: "block",
+								type: blockType,
+								[blockType]: {
+									rich_text: [{ type: "text", text: { content: text } }]
+								}
+							}
+						]
+					}
 				}
 			}
 

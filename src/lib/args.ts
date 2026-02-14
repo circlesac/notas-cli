@@ -8,6 +8,10 @@ export const commonArgs = {
 	plain: { type: "boolean" as const, description: "Output as plain text" }
 }
 
+export const stdinArgs = {
+	stdio: { type: "boolean" as const, description: "Read content from stdin" }
+}
+
 export const paginationArgs = {
 	limit: {
 		type: "string" as const,

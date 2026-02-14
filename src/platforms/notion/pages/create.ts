@@ -1,5 +1,5 @@
 import { defineCommand } from "citty"
-import { commonArgs } from "../../../lib/args.ts"
+import { commonArgs, stdinArgs } from "../../../lib/args.ts"
 import { getToken } from "../../../lib/credentials.ts"
 import { handleError } from "../../../lib/errors.ts"
 import { getOutputFormat, printOutput } from "../../../lib/output.ts"
@@ -12,6 +12,7 @@ export const createCommand = defineCommand({
 	},
 	args: {
 		...commonArgs,
+		...stdinArgs,
 		parent: {
 			type: "positional",
 			description: "Parent page ID or database ID",
@@ -45,6 +46,16 @@ export const createCommand = defineCommand({
 	},
 	async run({ args }) {
 		try {
+			if (args.stdio && args.content) {
+				console.error("\x1b[31m\u2717\x1b[0m Cannot use both --stdio and --content")
+				process.exit(1)
+			}
+
+			let content = args.content
+			if (!content && args.stdio) {
+				content = (await Bun.stdin.text()).trimEnd()
+			}
+
 			const { token } = await getToken(args.workspace)
 			const client = createNotionClient(token)
 
@@ -78,13 +89,13 @@ export const createCommand = defineCommand({
 				}
 			}
 
-			if (args.content) {
+			if (content) {
 				createParams.children = [
 					{
 						object: "block",
 						type: "paragraph",
 						paragraph: {
-							rich_text: [{ type: "text", text: { content: args.content } }]
+							rich_text: [{ type: "text", text: { content } }]
 						}
 					}
 				]
