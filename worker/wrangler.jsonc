@@ -1,0 +1,11 @@
+{
+	"name": "notas-oauth-redirect",
+	"main": "src/index.js",
+	"compatibility_date": "2025-01-01",
+	"routes": [
+		{
+			"pattern": "notas.circles.ac",
+			"custom_domain": true
+		}
+	]
+}

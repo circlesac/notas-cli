@@ -1,0 +1,36 @@
+class Notas < Formula
+  desc "Multi-provider notes & docs CLI"
+  homepage "https://github.com/circlesac/notas-cli"
+  version "VERSION_PLACEHOLDER"
+  license "MIT"
+
+  on_macos do
+    on_arm do
+      url "https://github.com/circlesac/notas-cli/releases/download/v#{version}/notas-darwin-arm64.tar.gz"
+      sha256 "SHA_DARWIN_ARM64"
+    end
+    on_intel do
+      url "https://github.com/circlesac/notas-cli/releases/download/v#{version}/notas-darwin-x64.tar.gz"
+      sha256 "SHA_DARWIN_X64"
+    end
+  end
+
+  on_linux do
+    on_arm do
+      url "https://github.com/circlesac/notas-cli/releases/download/v#{version}/notas-linux-arm64.tar.gz"
+      sha256 "SHA_LINUX_ARM64"
+    end
+    on_intel do
+      url "https://github.com/circlesac/notas-cli/releases/download/v#{version}/notas-linux-x64.tar.gz"
+      sha256 "SHA_LINUX_X64"
+    end
+  end
+
+  def install
+    bin.install "notas"
+  end
+
+  test do
+    system "#{bin}/notas", "--help"
+  end
+end

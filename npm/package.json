@@ -1,0 +1,20 @@
+{
+  "bin": {
+    "notas": "bin/notas"
+  },
+  "description": "Multi-provider notes & docs CLI",
+  "files": [
+    "bin/notas",
+    "install.js"
+  ],
+  "license": "MIT",
+  "name": "@circlesac/notas",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/circlesac/notas-cli"
+  },
+  "scripts": {
+    "postinstall": "node install.js"
+  },
+  "version": "26.2.0"
+}
