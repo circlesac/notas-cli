@@ -54,6 +54,28 @@ notas notion version
 
 `db` is an alias for `databases`.
 
+## Skills
+
+| Skill | Description |
+|-------|-------------|
+| **notion** | Reference guide for the notas CLI Notion provider — pages, databases, blocks, users, comments, and search |
+
+### Claude Code
+
+```bash
+# Add marketplace
+/plugin marketplace add circlesac/notas-cli
+
+# Install plugin
+/plugin install notas
+```
+
+### Pi
+
+```bash
+pi install npm:@circlesac/notas
+```
+
 ## Development
 
 ```bash
