@@ -73,7 +73,8 @@ notas notion version
 ### Pi
 
 ```bash
-pi install npm:@circlesac/notas
+pi install git:circlesac/notas-cli
+# or: npx @mariozechner/pi-coding-agent install git:circlesac/notas-cli
 ```
 
 ## Development
