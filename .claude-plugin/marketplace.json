@@ -1,0 +1,11 @@
+{
+	"name": "notas",
+	"owner": { "name": "Circles Inc" },
+	"plugins": [
+		{
+			"name": "notas",
+			"source": "./",
+			"description": "Notion CLI reference for Claude Code — search, create, and manage Notion pages, databases, blocks, and more"
+		}
+	]
+}
