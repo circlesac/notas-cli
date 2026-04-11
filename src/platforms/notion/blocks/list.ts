@@ -29,7 +29,9 @@ export const listCommand = defineLeafCommand({
 			const { token } = await getToken(args.workspace)
 			const client = createNotionClient(token)
 
-			const blocks: Record<string, unknown>[] = []
+			const format = getOutputFormat(args)
+			const rawBlocks: Array<Record<string, unknown>> = []
+			const rows: Array<Record<string, unknown>> = []
 
 			async function fetchBlocks(parentId: string, depth: number): Promise<void> {
 				let cursor: string | undefined = args.cursor
@@ -49,13 +51,17 @@ export const listCommand = defineLeafCommand({
 							[key: string]: unknown
 						}
 
-						blocks.push({
-							id: b.id,
-							type: b.type,
-							text: extractBlockText(b),
-							children: b.has_children ? "yes" : "",
-							depth
-						})
+						if (format === "json") {
+							rawBlocks.push(b as Record<string, unknown>)
+						} else {
+							rows.push({
+								id: b.id,
+								type: b.type,
+								text: extractBlockText(b),
+								children: b.has_children ? "yes" : "",
+								depth
+							})
+						}
 
 						if (args.recursive && b.has_children) {
 							await fetchBlocks(b.id, depth + 1)
@@ -68,13 +74,17 @@ export const listCommand = defineLeafCommand({
 
 			await fetchBlocks(args.id, 0)
 
-			printOutput(blocks, getOutputFormat(args), [
-				{ key: "id", label: "ID" },
-				{ key: "type", label: "Type" },
-				{ key: "text", label: "Content", width: 50 },
-				{ key: "children", label: "Children" },
-				{ key: "depth", label: "Depth" }
-			])
+			if (format === "json") {
+				printOutput(rawBlocks, format)
+			} else {
+				printOutput(rows, format, [
+					{ key: "id", label: "ID" },
+					{ key: "type", label: "Type" },
+					{ key: "text", label: "Content", width: 50 },
+					{ key: "children", label: "Children" },
+					{ key: "depth", label: "Depth" }
+				])
+			}
 		} catch (error) {
 			handleError(error)
 		}
