@@ -64,6 +64,10 @@ jobs:
       - name: Build binary
         run: |
           bun build --compile --target=${{ matrix.target }} --outfile=notas src/index.ts
+          if [[ "${{ matrix.target }}" == bun-darwin-* ]]; then
+            codesign --remove-signature notas
+            codesign --force --deep -s - notas
+          fi
           tar czf ${{ matrix.name }}.tar.gz notas
 
       - uses: actions/upload-artifact@v4
