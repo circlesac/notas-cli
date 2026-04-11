@@ -1,6 +1,7 @@
 import { defineCommand } from "citty"
 import { archiveCommand } from "./archive.ts"
 import { createCommand } from "./create.ts"
+import { exportCommand } from "./export.ts"
 import { getCommand } from "./get.ts"
 import { restoreCommand } from "./restore.ts"
 import { updateCommand } from "./update.ts"
@@ -15,6 +16,7 @@ export const pagesCommand = defineCommand({
 		create: createCommand,
 		update: updateCommand,
 		archive: archiveCommand,
-		restore: restoreCommand
+		restore: restoreCommand,
+		export: exportCommand
 	}
 })
