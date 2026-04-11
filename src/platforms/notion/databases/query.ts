@@ -1,12 +1,12 @@
-import { defineCommand } from "citty"
 import { commonArgs, paginationArgs } from "../../../lib/args.ts"
+import { defineLeafCommand } from "../../../lib/command.ts"
 import { getToken } from "../../../lib/credentials.ts"
 import { handleError } from "../../../lib/errors.ts"
 import { getOutputFormat, printOutput } from "../../../lib/output.ts"
 import { notionFetch } from "../client.ts"
 import { flattenProperties } from "../properties.ts"
 
-export const queryCommand = defineCommand({
+export const queryCommand = defineLeafCommand({
 	meta: {
 		name: "query",
 		description: "Query a database with optional filters and sorts"

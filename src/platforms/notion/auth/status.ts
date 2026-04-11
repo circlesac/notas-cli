@@ -1,11 +1,11 @@
-import { defineCommand } from "citty"
 import { commonArgs } from "../../../lib/args.ts"
+import { defineLeafCommand } from "../../../lib/command.ts"
 import { listIntegrations } from "../../../lib/credentials.ts"
 import { handleError } from "../../../lib/errors.ts"
 import { getOutputFormat, printOutput } from "../../../lib/output.ts"
 import { createNotionClient } from "../client.ts"
 
-export const statusCommand = defineCommand({
+export const statusCommand = defineLeafCommand({
 	meta: {
 		name: "status",
 		description: "Show authentication status for all workspaces"

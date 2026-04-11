@@ -1,8 +1,8 @@
-import { defineCommand } from "citty"
+import { defineLeafCommand } from "../../../lib/command.ts"
 import { renameIntegration } from "../../../lib/credentials.ts"
 import { handleError } from "../../../lib/errors.ts"
 
-export const renameCommand = defineCommand({
+export const renameCommand = defineLeafCommand({
 	meta: {
 		name: "rename",
 		description: "Rename a workspace"

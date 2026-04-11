@@ -1,4 +1,4 @@
-import { defineCommand } from "citty"
+import { defineLeafCommand } from "../../lib/command.ts"
 import { getToken } from "../../lib/credentials.ts"
 import { handleError } from "../../lib/errors.ts"
 
@@ -6,7 +6,7 @@ function toCamelCase(str: string): string {
 	return str.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase())
 }
 
-export const apiCommand = defineCommand({
+export const apiCommand = defineLeafCommand({
 	meta: {
 		name: "api",
 		description: "Make raw Notion API calls (e.g., notion api POST /v1/databases/ID/query --body '{}')"

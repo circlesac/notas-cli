@@ -1,5 +1,5 @@
 import { Client } from "@notionhq/client"
-import { defineCommand } from "citty"
+import { defineLeafCommand } from "../../../lib/command.ts"
 import { getIntegrationCredentials, storeCredentials, storeToken } from "../../../lib/credentials.ts"
 import { handleError } from "../../../lib/errors.ts"
 
@@ -142,7 +142,7 @@ async function loginWithOAuth(clientId: string, clientSecret: string, nameOverri
 	}
 }
 
-export const loginCommand = defineCommand({
+export const loginCommand = defineLeafCommand({
 	meta: {
 		name: "login",
 		description: "Authenticate with Notion (OAuth or token)"

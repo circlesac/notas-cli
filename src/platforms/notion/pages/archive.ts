@@ -1,10 +1,10 @@
-import { defineCommand } from "citty"
 import { commonArgs } from "../../../lib/args.ts"
+import { defineLeafCommand } from "../../../lib/command.ts"
 import { getToken } from "../../../lib/credentials.ts"
 import { handleError } from "../../../lib/errors.ts"
 import { createNotionClient } from "../client.ts"
 
-export const archiveCommand = defineCommand({
+export const archiveCommand = defineLeafCommand({
 	meta: {
 		name: "archive",
 		description: "Archive (soft-delete) a page"

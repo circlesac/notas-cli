@@ -1,8 +1,8 @@
-import { defineCommand } from "citty"
+import { defineLeafCommand } from "../../../lib/command.ts"
 import { getIntegrationCredentials, listIntegrations, storeCredentials } from "../../../lib/credentials.ts"
 import { AuthError, handleError } from "../../../lib/errors.ts"
 
-export const refreshCommand = defineCommand({
+export const refreshCommand = defineLeafCommand({
 	meta: {
 		name: "refresh",
 		description: "Refresh an OAuth token"

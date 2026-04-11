@@ -1,8 +1,8 @@
-import { defineCommand } from "citty"
+import { defineLeafCommand } from "../../../lib/command.ts"
 import { listIntegrations, removeIntegration } from "../../../lib/credentials.ts"
 import { handleError } from "../../../lib/errors.ts"
 
-export const logoutCommand = defineCommand({
+export const logoutCommand = defineLeafCommand({
 	meta: {
 		name: "logout",
 		description: "Remove a stored workspace token"

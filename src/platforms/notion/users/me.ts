@@ -1,11 +1,11 @@
-import { defineCommand } from "citty"
 import { commonArgs } from "../../../lib/args.ts"
+import { defineLeafCommand } from "../../../lib/command.ts"
 import { getToken } from "../../../lib/credentials.ts"
 import { handleError } from "../../../lib/errors.ts"
 import { getOutputFormat, printOutput } from "../../../lib/output.ts"
 import { createNotionClient } from "../client.ts"
 
-export const meCommand = defineCommand({
+export const meCommand = defineLeafCommand({
 	meta: {
 		name: "me",
 		description: "Get the current bot user"
