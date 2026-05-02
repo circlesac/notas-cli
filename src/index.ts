@@ -1,5 +1,6 @@
 import { defineCommand, runMain } from "citty"
 import pkg from "../package.json"
+import { checkForUpdate } from "./lib/update-check.ts"
 import { notionCommand } from "./platforms/notion/index.ts"
 
 const main = defineCommand({
@@ -13,4 +14,5 @@ const main = defineCommand({
 	}
 })
 
+await checkForUpdate()
 runMain(main)
