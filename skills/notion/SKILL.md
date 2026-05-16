@@ -15,11 +15,11 @@ notas notion db list             # List all databases
 
 ## Global Flags
 
-| Flag | Alias | Description |
-|------|-------|-------------|
-| `--workspace` | `-w` | Select workspace (when multiple configured) |
-| `--json` | | Output as JSON |
-| `--plain` | | Output as tab-separated plain text |
+| Flag          | Alias | Description                                 |
+| ------------- | ----- | ------------------------------------------- |
+| `--workspace` | `-w`  | Select workspace (when multiple configured) |
+| `--json`      |       | Output as JSON                              |
+| `--plain`     |       | Output as tab-separated plain text          |
 
 ## Authentication
 
@@ -65,6 +65,7 @@ notas notion pages restore <page-id>
 ```
 
 Stdin support:
+
 ```bash
 cat notes.md | notas notion pages create <parent-id> --title "From File" --stdio
 ```
@@ -90,6 +91,7 @@ notas notion blocks delete <block-id>
 Block types: `paragraph`, `heading_1`, `heading_2`, `heading_3`, `bulleted_list_item`, `numbered_list_item`, `to_do`, `toggle`, `code`, `quote`, `callout`, `divider`, `bookmark`
 
 Stdin support:
+
 ```bash
 cat code.py | notas notion blocks append <page-id> --type code --language python --stdio
 ```
@@ -134,16 +136,19 @@ notas notion api PATCH /v1/pages/<id> --body '{"archived":true}'
 ## Common Workflows
 
 ### Create a page with content from a file
+
 ```bash
 cat document.md | notas notion pages create <parent-id> --title "My Doc" --stdio
 ```
 
 ### Query a database and pipe to jq
+
 ```bash
 notas notion db query <db-id> --json | jq '.results[].properties.Name.title[0].plain_text'
 ```
 
 ### Append multiple blocks from a script
+
 ```bash
 notas notion blocks append <page-id> --type heading_1 --text "Section Title"
 notas notion blocks append <page-id> --text "Paragraph content"
@@ -151,6 +156,7 @@ cat snippet.py | notas notion blocks append <page-id> --type code --language pyt
 ```
 
 ### Search and get page content
+
 ```bash
 PAGE_ID=$(notas notion search "meeting notes" --json | jq -r '.results[0].id')
 notas notion blocks list $PAGE_ID --recursive --plain

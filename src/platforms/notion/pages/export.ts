@@ -81,7 +81,7 @@ function collectChildPages(blocks: NotionBlock[], out: string[]): void {
 	}
 }
 
-function extOf(url: string): string {
+export function extOf(url: string): string {
 	try {
 		const u = new URL(url)
 		const ext = path.extname(u.pathname)
@@ -89,6 +89,40 @@ function extOf(url: string): string {
 	} catch {
 		return ""
 	}
+}
+
+export function sanitizeMediaFilename(input: string): string {
+	const normalized = input
+		.normalize("NFC")
+		.replace(/[\\/:\0]/g, "-")
+		.split("")
+		.map((char) => {
+			const code = char.charCodeAt(0)
+			return code > 0 && code < 32 ? " " : char
+		})
+		.join("")
+		.replace(/\s+/g, " ")
+		.trim()
+	if (normalized === "." || normalized === "..") return "file"
+	return normalized || "file"
+}
+
+export function mediaFilename(blockId: string, url: string, suggestedName: string | undefined, usedNames: Set<string>): string {
+	const ext = extOf(url) || ".bin"
+	const fallback = `${blockId.replace(/-/g, "")}${ext}`
+	const safeName = sanitizeMediaFilename(suggestedName ?? fallback)
+	const parsed = path.parse(safeName)
+	const filename = parsed.ext ? safeName : `${safeName}${ext}`
+	const dedupeKey = filename.toLowerCase()
+	if (!usedNames.has(dedupeKey)) {
+		usedNames.add(dedupeKey)
+		return filename
+	}
+
+	const suffix = shortId(blockId)
+	const duplicate = `${parsed.name || "file"}-${suffix}${parsed.ext || ext}`
+	usedNames.add(duplicate.toLowerCase())
+	return duplicate
 }
 
 async function downloadMedia(url: string, dest: string): Promise<{ ok: boolean; error?: string }> {
@@ -178,11 +212,11 @@ async function exportPage(
 
 	const mediaDir = path.join(outDir, "_images")
 	const pendingDownloads: Promise<unknown>[] = []
+	const usedMediaNames = new Set<string>()
 	const resolveMedia = options.downloadMedia
-		? (blockId: string, url: string): string => {
-				const ext = extOf(url) || ".bin"
-				const idNorm = blockId.replace(/-/g, "")
-				const dest = path.join(mediaDir, `${idNorm}${ext}`)
+		? (blockId: string, url: string, suggestedName?: string): string => {
+				const filename = mediaFilename(blockId, url, suggestedName, usedMediaNames)
+				const dest = path.join(mediaDir, filename)
 				pendingDownloads.push(
 					downloadMedia(url, dest).then((result) => {
 						if (!result.ok) {
@@ -190,7 +224,7 @@ async function exportPage(
 						}
 					})
 				)
-				return path.posix.join("_images", `${idNorm}${ext}`)
+				return path.posix.join("_images", filename)
 			}
 		: undefined
 

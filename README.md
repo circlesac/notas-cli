@@ -56,8 +56,8 @@ notas notion version
 
 ## Skills
 
-| Skill | Description |
-|-------|-------------|
+| Skill      | Description                                                                                               |
+| ---------- | --------------------------------------------------------------------------------------------------------- |
 | **notion** | Reference guide for the notas CLI Notion provider — pages, databases, blocks, users, comments, and search |
 
 ### Claude Code

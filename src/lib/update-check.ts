@@ -1,8 +1,8 @@
+import { spawn } from "node:child_process"
 import { existsSync } from "node:fs"
 import { mkdir, readFile, writeFile } from "node:fs/promises"
 import { homedir } from "node:os"
 import { dirname, join } from "node:path"
-import { spawn } from "node:child_process"
 import pkg from "../../package.json"
 
 // ── Per-CLI configuration ──────────────────────────────────────────────────
@@ -44,8 +44,12 @@ function stripV(v: string): string {
 }
 
 function compareVersions(a: string, b: string): number {
-	const pa = stripV(a).split(".").map((n) => parseInt(n, 10) || 0)
-	const pb = stripV(b).split(".").map((n) => parseInt(n, 10) || 0)
+	const pa = stripV(a)
+		.split(".")
+		.map((n) => parseInt(n, 10) || 0)
+	const pb = stripV(b)
+		.split(".")
+		.map((n) => parseInt(n, 10) || 0)
 	for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
 		const da = pa[i] ?? 0
 		const db = pb[i] ?? 0
@@ -56,13 +60,7 @@ function compareVersions(a: string, b: string): number {
 
 function detectSource(): Source {
 	const exe = process.execPath
-	if (
-		exe.includes("/Cellar/") ||
-		exe.includes("/Caskroom/") ||
-		exe.includes("/opt/homebrew/") ||
-		exe.includes("/linuxbrew/") ||
-		exe.includes("/Homebrew/")
-	) {
+	if (exe.includes("/Cellar/") || exe.includes("/Caskroom/") || exe.includes("/opt/homebrew/") || exe.includes("/linuxbrew/") || exe.includes("/Homebrew/")) {
 		return "homebrew"
 	}
 	if (exe.includes("/node_modules/")) return "npm"
@@ -92,7 +90,7 @@ function printBanner(current: string, latest: string, source: Source): void {
 		``,
 		`   Release notes: ${url}`,
 		`   To update: ${updateCommand(source)}`,
-		"",
+		""
 	]
 	process.stderr.write(lines.join("\n"))
 }
@@ -119,13 +117,10 @@ async function fetchLatestTag(): Promise<string | null> {
 	const controller = new AbortController()
 	const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS)
 	try {
-		const res = await fetch(
-			`https://api.github.com/repos/${REPO}/releases/latest`,
-			{
-				headers: { "User-Agent": `${CLI_NAME}-cli`, Accept: "application/vnd.github+json" },
-				signal: controller.signal,
-			},
-		)
+		const res = await fetch(`https://api.github.com/repos/${REPO}/releases/latest`, {
+			headers: { "User-Agent": `${CLI_NAME}-cli`, Accept: "application/vnd.github+json" },
+			signal: controller.signal
+		})
 		if (!res.ok) return null
 		const data = (await res.json()) as { tag_name?: string }
 		return data.tag_name ?? null
@@ -148,7 +143,7 @@ function spawnRefresh(): void {
 		const child = spawn(process.execPath, [], {
 			detached: true,
 			stdio: "ignore",
-			env: { ...rest, [REFRESH_ENV]: "1" },
+			env: { ...rest, [REFRESH_ENV]: "1" }
 		})
 		child.unref()
 	} catch {
@@ -192,9 +187,7 @@ function execUpdate(source: Source): Promise<number> {
 				resolve(0)
 				return
 		}
-		const child = useShell
-			? spawn(cmd, { shell: true, stdio: "inherit" })
-			: spawn(cmd, args, { stdio: "inherit" })
+		const child = useShell ? spawn(cmd, { shell: true, stdio: "inherit" }) : spawn(cmd, args, { stdio: "inherit" })
 		child.on("exit", (code) => resolve(code ?? 1))
 		child.on("error", () => resolve(1))
 	})
@@ -207,10 +200,9 @@ export async function checkForUpdate(): Promise<void> {
 	}
 
 	if (shouldSkip()) return
-	const current = (pkg as { version: string }).version
+	const current = (pkg as { version?: string }).version ?? "0.0.0"
 	const cached = await readCache()
-	const stale = !cached ||
-		Date.now() - Date.parse(cached.checkedAt) > CHECK_INTERVAL_MS
+	const stale = !cached || Date.now() - Date.parse(cached.checkedAt) > CHECK_INTERVAL_MS
 
 	if (cached && compareVersions(cached.latest, current) > 0) {
 		const source = detectSource()

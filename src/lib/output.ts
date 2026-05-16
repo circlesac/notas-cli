@@ -98,7 +98,6 @@ export function formatOutput(data: unknown, format: OutputFormat, columns?: Colu
 			return JSON.stringify(data, null, 2)
 		case "plain":
 			return formatPlain(data, columns)
-		case "table":
 		default:
 			return formatTable(data, columns)
 	}

@@ -23,7 +23,7 @@ export type NotionBlock = {
 	[key: string]: unknown
 }
 
-export type MediaResolver = (blockId: string, url: string) => string
+export type MediaResolver = (blockId: string, url: string, suggestedName?: string) => string
 
 function renderRichText(rt: RichText): string {
 	if (rt.type === "equation" && rt.equation) {
@@ -56,6 +56,10 @@ function renderRichTextArray(arr: RichText[] | undefined): string {
 	return arr.map(renderRichText).join("")
 }
 
+function renderTableCell(arr: RichText[] | undefined): string {
+	return renderRichTextArray(arr).replace(/\r?\n/g, "<br>").replace(/\|/g, "\\|")
+}
+
 function indent(text: string, prefix: string): string {
 	return text
 		.split("\n")
@@ -81,26 +85,27 @@ function renderMedia(block: NotionBlock, ctx: Context): string {
 		file?: { url: string }
 		external?: { url: string }
 		caption?: RichText[]
+		name?: string
 	}
 	if (!data) return ""
 
 	let url = ""
+	const caption = renderRichTextArray(data.caption)
+	const suggestedName = data.name || caption || undefined
 	if (data.type === "file" && data.file) {
 		url = data.file.url
 		if (ctx.resolveMedia) {
-			url = ctx.resolveMedia(block.id, url)
+			url = ctx.resolveMedia(block.id, url, suggestedName)
 		}
 	} else if (data.type === "external" && data.external) {
 		url = data.external.url
 	}
 
-	const caption = renderRichTextArray(data.caption)
-
 	if (type === "image") {
 		return `![${caption}](${url})`
 	}
 	if (type === "video" || type === "audio" || type === "file" || type === "pdf") {
-		const label = caption || type
+		const label = caption || data.name || type
 		return `[${label}](${url})`
 	}
 	return url
@@ -118,7 +123,7 @@ function renderTable(block: NotionBlock): string {
 		if (row.type !== "table_row") continue
 		const rowData = row.table_row as { cells: RichText[][] } | undefined
 		if (!rowData) continue
-		rows.push(rowData.cells.map((cell) => renderRichTextArray(cell).replace(/\|/g, "\\|")))
+		rows.push(rowData.cells.map(renderTableCell))
 	}
 
 	if (rows.length === 0) return ""
