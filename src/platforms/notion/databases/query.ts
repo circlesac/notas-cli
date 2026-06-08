@@ -1,10 +1,30 @@
+import { Client } from "@notionhq/client"
 import { commonArgs, paginationArgs } from "../../../lib/args.ts"
 import { defineLeafCommand } from "../../../lib/command.ts"
 import { getToken } from "../../../lib/credentials.ts"
 import { handleError } from "../../../lib/errors.ts"
 import { getOutputFormat, printOutput } from "../../../lib/output.ts"
-import { notionFetch } from "../client.ts"
+import { createNotionClient } from "../client.ts"
 import { flattenProperties } from "../properties.ts"
+
+/**
+ * Notion's 2025 API split databases into data sources. `db list` returns
+ * data-source ids, which is what callers normally pass here. If a (classic)
+ * database id is passed instead, resolve its first data source.
+ */
+async function resolveDataSourceId(client: Client, id: string): Promise<string> {
+	try {
+		await client.dataSources.retrieve({ data_source_id: id })
+		return id
+	} catch {
+		const db = (await client.databases.retrieve({ database_id: id })) as {
+			data_sources?: Array<{ id: string }>
+		}
+		const first = db.data_sources?.[0]?.id
+		if (!first) throw new Error(`No data source found for database ${id}`)
+		return first
+	}
+}
 
 export const queryCommand = defineLeafCommand({
 	meta: {
@@ -16,7 +36,7 @@ export const queryCommand = defineLeafCommand({
 		...paginationArgs,
 		id: {
 			type: "positional",
-			description: "Database ID",
+			description: "Database or data source ID",
 			required: true
 		},
 		filter: {
@@ -35,38 +55,27 @@ export const queryCommand = defineLeafCommand({
 	async run({ args }) {
 		try {
 			const { token } = await getToken(args.workspace)
+			const client = createNotionClient(token)
+			const dataSourceId = await resolveDataSourceId(client, args.id)
 
 			const pages: Record<string, unknown>[] = []
 			let cursor: string | undefined = args.cursor
 
 			do {
-				const body: Record<string, unknown> = {
-					page_size: args.limit ? parseInt(args.limit, 10) : 100
-				}
+				const response = await client.dataSources.query({
+					data_source_id: dataSourceId,
+					page_size: args.limit ? parseInt(args.limit, 10) : 100,
+					...(cursor ? { start_cursor: cursor } : {}),
+					...(args.filter ? { filter: JSON.parse(args.filter) } : {}),
+					...(args.sort ? { sorts: JSON.parse(args.sort) } : {})
+				})
 
-				if (cursor) body.start_cursor = cursor
-				if (args.filter) body.filter = JSON.parse(args.filter)
-				if (args.sort) body.sorts = JSON.parse(args.sort)
-
-				const response = (await notionFetch(token, `/v1/databases/${args.id}/query`, body)) as {
-					results: Array<{
+				for (const result of response.results) {
+					const page = result as unknown as {
 						id: string
 						url?: string
-						created_time: string
-						last_edited_time: string
 						properties?: Record<string, { id: string; type: string; [key: string]: unknown }>
-					}>
-					has_more: boolean
-					next_cursor: string | null
-					error?: string
-					message?: string
-				}
-
-				if (response.error) {
-					throw new Error(response.message ?? response.error)
-				}
-
-				for (const page of response.results) {
+					}
 					const props = page.properties ? flattenProperties(page.properties) : {}
 					pages.push({
 						id: page.id,

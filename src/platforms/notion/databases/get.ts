@@ -14,7 +14,7 @@ export const getCommand = defineLeafCommand({
 		...commonArgs,
 		id: {
 			type: "positional",
-			description: "Database ID",
+			description: "Database or data source ID",
 			required: true
 		}
 	},
@@ -23,9 +23,9 @@ export const getCommand = defineLeafCommand({
 			const { token } = await getToken(args.workspace)
 			const client = createNotionClient(token)
 
-			const db = await client.databases.retrieve({
-				database_id: args.id
-			})
+			// `db list` returns data-source ids (Notion 2025 API). Try a data source
+			// first; fall back to a classic database id.
+			const db = await client.dataSources.retrieve({ data_source_id: args.id }).catch(() => client.databases.retrieve({ database_id: args.id }))
 
 			const format = getOutputFormat(args)
 			if (format === "json") {
