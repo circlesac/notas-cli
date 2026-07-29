@@ -5,7 +5,7 @@
     {
       "name": "notas",
       "source": "./",
-      "description": "Notion CLI reference for Claude Code — search, create, and manage Notion pages, databases, blocks, and more"
+      "description": "Operate notas across notes and document providers, with a Notion command reference"
     }
   ]
 }

@@ -56,9 +56,9 @@ notas notion version
 
 ## Skills
 
-| Skill      | Description                                                                                               |
-| ---------- | --------------------------------------------------------------------------------------------------------- |
-| **notion** | Reference guide for the notas CLI Notion provider — pages, databases, blocks, users, comments, and search |
+| Skill     | Description                                                                              |
+| --------- | ---------------------------------------------------------------------------------------- |
+| **notas** | Operate notas across notes and document providers; includes the Notion command reference |
 
 ### Claude Code
 
@@ -73,8 +73,8 @@ notas notion version
 ### Pi
 
 ```bash
-pi install git:circlesac/notas-cli
-# or: npx @mariozechner/pi-coding-agent install git:circlesac/notas-cli
+pi install git:github.com/circlesac/notas-cli
+# or: npx @earendil-works/pi-coding-agent install git:github.com/circlesac/notas-cli
 ```
 
 ## Development

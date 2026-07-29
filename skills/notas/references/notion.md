@@ -1,9 +1,11 @@
----
-name: notion
-description: Reference guide for the notas CLI Notion provider. Use this when working with Notion pages, databases, blocks, users, comments, or search.
----
+# Notion provider
 
-# notas CLI Reference
+## Contents
+
+- Quick start, global flags, and authentication
+- Databases, pages, and blocks
+- Search, users, and comments
+- Raw API and common workflows
 
 ## Quick Start
 
